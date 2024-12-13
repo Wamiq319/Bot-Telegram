@@ -1,0 +1,8 @@
+Flask==2.2.2
+Werkzeug==2.2.2  # Adjusted to meet Flask's minimum requirementsssssss
+flask-cors==3.0.10
+mysql-connector-python==8.0.28
+gunicorn==20.1.0
+cloudinary==1.41.0  # You should specify the version you need
+python-dateutil==2.8.2
+requests==2.31.0  # Add the requests module

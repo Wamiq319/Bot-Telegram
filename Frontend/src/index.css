@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Regular Weight */
+.text-regular {
+  font-weight: 400;
+}
+
+/* Medium Weight */
+.text-medium {
+  font-weight: 500;
+}
+
+/* Bold Weight */
+.text-bold {
+  font-weight: 500;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: #000000;
+}
+
+.leading-relaxed {
+  line-height: 1.8rem !important;
+}
+
+/* Add this CSS */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Hide scrollbar on Webkit browsers */
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Hide scrollbar on Internet Explorer and Edge */
+  scrollbar-width: none;     /* Hide scrollbar on Firefox */
+}

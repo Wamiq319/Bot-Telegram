@@ -1,0 +1,17 @@
+.custom-connect-button {
+    background-color: #1d4ed8;
+    color: white;
+    font-size: 16px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.custom-disconnect-button {
+    background-color: #e11d48;
+    color: white;
+    font-size: 16px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+}
