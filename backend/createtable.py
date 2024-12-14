@@ -30,6 +30,7 @@ try:
             alreadydailyclaimed INT,
             claimedtotal INT,
             dailyclaimedtime BIGINT,
+            lastAdClaimTime BIGINT,
             dailycombotime BIGINT,
             discord VARCHAR(255),
             facebook VARCHAR(255),
@@ -42,6 +43,7 @@ try:
             totalcollectabledaily VARCHAR(255),
             totalstim FLOAT,
             youtube VARCHAR(255),
+            walletid VARCHAR(255)
             walletid VARCHAR(255)
         );
         '''

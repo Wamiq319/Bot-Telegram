@@ -96,7 +96,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
               <LiaHandPointerSolid className="w-8 h-4" />
             ) : (
               // <BsLightningChargeFill  />
-              <span className="w-4 h-2 flex justify-center items-center pt-1 pl-2">
+              <span className="w-4 h-2 flex justify-center items-center pl-[6px] pt-[2px]">
                 &#10148;
               </span>
             )}
@@ -244,7 +244,7 @@ const App: React.FC = () => {
   const loadPoints = async (userid: string) => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:5000/get_user?UserId=${userid}`
+        `https://app.soulpartyin.com/api/get_user?UserId=${userid}`
       );
       const data = await response.json();
       if (data && data.data && data.data.totalstim !== undefined) {
@@ -278,6 +278,12 @@ const App: React.FC = () => {
         ? "not_started"
         : "completed";
 
+    const isDailyAdRewardAvailable =
+      !data.data.lastAdClaimTime ||
+      now - data.data.lastAdClaimTime >= 24 * 60 * 60 * 1000
+        ? "not_started"
+        : "completed";
+
     // Create an object with only the task statuses
     const updatedTaskStatus: { [key: string]: "not_started" | "completed" } = {
       YouTube: data.data.youtube === "Done" ? "completed" : "not_started",
@@ -287,6 +293,7 @@ const App: React.FC = () => {
       Invite10: data.data.inv10 === "Done" ? "completed" : "not_started",
       Invite20: data.data.inv20 === "Done" ? "completed" : "not_started",
       DailyReward: isDailyRewardAvailable,
+      DailyAdReward: isDailyAdRewardAvailable,
       SendSoulWave: isSendSoulWaveAvailable,
       Transaction:
         data.data.Transaction === "Done" ? "completed" : "not_started",
@@ -730,8 +737,29 @@ const App: React.FC = () => {
   };
 
   // AdsGram integration
-  const onReward = useCallback(() => {
-    alert("User rewarded!");
+  const onReward = useCallback(async () => {
+    const now = Date.now();
+    try {
+      await fetch("https://app.soulpartyin.com/api/update_user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ UserId: userID, lastAdClaimedTime: now }),
+      });
+      setTaskStatus((prevState) => ({
+        ...prevState,
+        DailyAdReward: "completed",
+      }));
+
+      setPoints((prevPoints) => prevPoints + 90); // Updated reward
+      showAlert(
+        "Congratulations! You have claimed your daily reward of 90 souls"
+      );
+    } catch (error) {
+      console.error("Failed to claim daily reward:", error);
+      showAlert(
+        "An error occurred while claiming your daily reward. Please try again later."
+      );
+    }
   }, []);
 
   const onError = useCallback((result: ShowPromiseResult) => {
@@ -845,20 +873,15 @@ const App: React.FC = () => {
 
         {/* Blink bonus */}
         <div
-          onClick={
-            taskStatus["DailyReward"] === "not_started"
-              ? () => {
-                  // Open the link synchronously
-                  window.open("https://t.me/SoulPartyIn", "_blank");
-                  // Then handle the reward asynchronously
-                  handleDailyRewardClick();
-                  showAd;
-                }
-              : undefined
-          }
-          className={`flex items-center justify-between bg-[#222222]/70 rounded-xl pt-[.4rem] pb-3 px-4 sm:px-8 mb-6 border border-[#3b3a3b] 
-              hover:bg-[#242424] cursor-pointer
-           `}
+          className={`flex items-center justify-between bg-[#222222]/70 rounded-xl pt-[.4rem] pb-3 px-4 sm:px-8 mb-6 border border-[#3b3a3b] ${
+            taskStatus["DailyAdReward"] === "not_started"
+              ? "hover:bg-[#242424] cursor-pointer"
+              : ""
+          } ${
+            taskStatus["DailyAdReward"] === "completed"
+              ? "opacity-50 cursor-not-allowed"
+              : ""
+          }`}
         >
           <div className="flex items-center">
             <div className="text-white">
@@ -875,12 +898,19 @@ const App: React.FC = () => {
             </div>
           </div>
           <div className="text-gray-400">
-            <button
-              className="flex items-center justify-center bg-[#4CAF50] w-[40px] sm:w-[50px] text-[#ffffff] sm:px-4 py-1 rounded-full"
-              onClick={showAd}
-            >
-              <MdOutlineVideoLibrary className="w-7 h-4" />
-            </button>
+            {/* <button className="flex items-center justify-center bg-[#4CAF50] w-[50px] h-[30px] text-[#ffffff] rounded-full" */}
+            {taskStatus["DailyAdReward"] === "completed" && (
+              <img src={doneIcon} alt="Done" className="w-6 h-6" />
+            )}
+
+            {taskStatus["DailyAdReward"] === "not_started" && (
+              <button
+                className="flex items-center justify-center bg-[#4CAF50] w-[40px] sm:w-[50px] text-[#ffffff] sm:px-4 py-1 rounded-full"
+                onClick={showAd}
+              >
+                <MdOutlineVideoLibrary className="w-7 h-4" />
+              </button>
+            )}
           </div>
         </div>
 
