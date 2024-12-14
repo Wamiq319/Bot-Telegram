@@ -76,7 +76,7 @@ def add_user():
             INSERT INTO Users (
                 UserId,totalstim, invitedby, miningstarttime, timeinminute, rate,
                 youtube, instagram, discord, telegram, X, facebook, Username,
-                dailycombotime, dailyclaimedtime,lastAdClaimTime, alreadydailyclaimed, walletid
+                dailycombotime, dailyclaimedtime,lastAdClaimedTime, alreadydailyclaimed, walletid
             ) VALUES (
                 %s, 0, %s, '0', '180', '0.3', NULL, NULL, NULL, NULL, NULL, NULL, %s,0, 0, 0, 0, NULL
             )
@@ -97,18 +97,17 @@ def add_user():
 def get_database():
     try:
         with get_db_connection() as conn:
-            # query = "ALTER TABLE Users ADD COLUMN lastAdClaimTime BIGINT DEFAULT 0 AFTER dailyclaimedtime"
-            # cursor = execute_query_with_retry(conn, query)
-
             query = "SELECT * FROM Users"
             cursor = execute_query_with_retry(conn, query)
             data = cursor.fetchall()
             return jsonify({'data': data}), 200
     except Error as e:
-        return jsonify({'error': 'Database error'}), 500
+        # Return the database error message from the exception
+        return jsonify({'error': f'Database error: {str(e)}'}), 500
     except Exception as e:
-        return jsonify({'error': 'An error occurred'}), 500
-    
+        # Return the generic exception message, if a non-database error occurs
+        return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+
 @app.route('/delete-user', methods=['DELETE'])
 def delete_user():
     user_id = request.args.get('UserId')
@@ -154,7 +153,6 @@ def get_user():
 
             user_dict = dict(user)# Convert row to dictionary
             Username = user_dict['Username']
-            return jsonify({'user': user}), 200
             try:
                 bot_token = os.getenv("BOT_TOKEN")
                 url = f'https://api.telegram.org/bot{bot_token}/getChat?chat_id={user_id}'

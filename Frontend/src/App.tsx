@@ -279,8 +279,8 @@ const App: React.FC = () => {
         : "completed";
 
     const isDailyAdRewardAvailable =
-      !data.data.lastAdClaimTime ||
-      now - data.data.lastAdClaimTime >= 24 * 60 * 60 * 1000
+      !data.data.lastAdClaimedTime ||
+      now - data.data.lastAdClaimedTime >= 24 * 60 * 60 * 1000
         ? "not_started"
         : "completed";
 
@@ -322,8 +322,8 @@ const App: React.FC = () => {
     );
   };
 
-  // Telegram Initialization and User Management
   useEffect(() => {
+    // Telegram Initialization and User Management
     const initializeTelegram = async () => {
       if (typeof Telegram === "undefined" || !Telegram.WebApp) {
         console.error("Telegram WebApp is not available.");
@@ -355,6 +355,9 @@ const App: React.FC = () => {
         }
 
         setUserID(user.userid);
+        // Store user ID in localStorage
+        localStorage.setItem("userID", user.userid);
+        setUserID(user.userid);
         await fetchOrAddUser(user.userid, user.startparam, user.username);
       } catch (error) {
         console.error("Initialization error:", error);
@@ -362,7 +365,6 @@ const App: React.FC = () => {
         setLoading(false);
       }
     };
-
     initializeTelegram();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -710,14 +712,30 @@ const App: React.FC = () => {
       );
       return;
     }
+    const payload = {
+      UserId: userID,
+      dailyclaimedtime: now,
+    };
 
+    console.log("Sending Payload to Backend:", payload);
     try {
-      await fetch("https://app.soulpartyin.com/api/update_user", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ UserId: userID, dailyclaimedtime: now }),
-      });
+      const response = await fetch(
+        "https://app.soulpartyin.com/api/update_user",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
 
+      const responseData = await response.json();
+      console.log("Response from Backend:", responseData); // Log the backend response
+      // Check if the response is successful
+      if (!response.ok) {
+        throw new Error(
+          `Failed to update user data. Status: ${response.status}`
+        );
+      }
       setLastClaimedTime(now);
       setTaskStatus((prevState) => ({
         ...prevState,
@@ -738,13 +756,36 @@ const App: React.FC = () => {
 
   // AdsGram integration
   const onReward = useCallback(async () => {
+    const storedUserID = localStorage.getItem("userID");
+    const userID = storedUserID || "1721223779"; // Fallback to default
+
     const now = Date.now();
+    const payload = {
+      UserId: userID,
+      lastAdClaimedTime: now,
+    };
+
+    console.log("Sending Payload to Backend:", payload); // Log the payload being sent
+
     try {
-      await fetch("https://app.soulpartyin.com/api/update_user", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ UserId: userID, lastAdClaimedTime: now }),
-      });
+      const response = await fetch(
+        "https://app.soulpartyin.com/api/update_user",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const responseData = await response.json();
+      console.log("Response from Backend:", responseData); // Log the backend response
+      // Check if the response is successful
+      if (!response.ok) {
+        throw new Error(
+          `Failed to update user data. Status: ${response.status}`
+        );
+      }
+
       setTaskStatus((prevState) => ({
         ...prevState,
         DailyAdReward: "completed",

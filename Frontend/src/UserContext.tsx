@@ -46,7 +46,7 @@ const UserContext = createContext<UserContextType>({
 export const UserProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [userID, setUserID] = useState<string>("7947353671"); // Default userID if not set by Telegram
+  const [userID, setUserID] = useState<string>("1721223779"); // Default userID if not set by Telegram
   const [points, setPoints] = useState<number>(0); // Default points
   const [isStar, setIsStar] = useState<boolean>(false); // Default isStar
   const [invitedby, setInvitedby] = useState<string>(""); // Default invitedby
@@ -61,7 +61,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       const initDataUnsafe = window.Telegram.WebApp.initDataUnsafe;
       const extractedUserID = initDataUnsafe.user?.id
         ? initDataUnsafe.user.id.toString()
-        : "7947353671"; // Use default if userID is not found
+        : "1721223779"; // Use default if userID is not found
       const extractedIsStar = initDataUnsafe.user?.is_premium || false; // Extract isStar
       const startParam = initDataUnsafe.start_param || ""; // Extract start_param, which may contain invitedby
 
